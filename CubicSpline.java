@@ -5,23 +5,32 @@ import java.util.Arrays;
  * dient uns zur effizienten Interpolation von aequidistanten Stuetzpunkten.
  *
  * @author braeckle
- *
  */
 public class CubicSpline implements InterpolationMethod {
 
-    /** linke und rechte Intervallgrenze x[0] bzw. x[n] */
+    /**
+     * linke und rechte Intervallgrenze x[0] bzw. x[n]
+     */
     double a, b;
 
-    /** Anzahl an Intervallen */
+    /**
+     * Anzahl an Intervallen
+     */
     int n;
 
-    /** Intervallbreite */
+    /**
+     * Intervallbreite
+     */
     double h;
 
-    /** Stuetzwerte an den aequidistanten Stuetzstellen */
+    /**
+     * Stuetzwerte an den aequidistanten Stuetzstellen
+     */
     double[] y;
 
-    /** zu berechnende Ableitunge an den Stuetzstellen */
+    /**
+     * zu berechnende Ableitunge an den Stuetzstellen
+     */
     double yprime[];
 
     /**
@@ -74,7 +83,7 @@ public class CubicSpline implements InterpolationMethod {
      * Tridiagonalen Matrix A und der rechten Seite c aufgebaut und geloest.
      * Anschliessend sind die berechneten Ableitungen y1' bis yn-1' in der
      * Membervariable yprime gespeichert.
-     *
+     * <p>
      * Zum Zeitpunkt des Aufrufs stehen die Randbedingungen in yprime[0] und yprime[n].
      * Speziell bei den "kleinen" Faellen mit Intervallzahlen n = 2
      * oder 3 muss auf die Struktur des Gleichungssystems geachtet werden. Der
@@ -82,7 +91,31 @@ public class CubicSpline implements InterpolationMethod {
      * berechnet werden muessen.
      */
     public void computeDerivatives() {
-        /* TODO: diese Methode ist zu implementieren */
+        double[] lower = new double[n - 1];
+        double[] diag = new double[n];
+        double[] upper = new double[n - 1];
+        double[] c = new double[n];
+
+        /* TODO: n = 2 und n = 3 implementieren */
+
+        if (n > 2) {
+            c[0] = y[2] - y[0] - 3 / h * (yprime[0]);
+            c[n - 1] = y[n - 1] - y[n - 3] - 3 / h * yprime[n - 1];
+
+
+            for (int i = 0; i < n - 1; i++) {
+                lower[i] = 1;
+                diag[i] = 4;
+                upper[i] = 1;
+
+                if (i != 0 && i != n - 1) {
+                    c[i] = 3 / h * (y[i + 2] - y[i]);
+                }
+            }
+        }
+        diag[n - 1] = 4;
+        TridiagonalMatrix matrix = new TridiagonalMatrix(lower, diag, upper);
+        yprime = matrix.solveLinearSystem(c);
     }
 
     /**
@@ -93,7 +126,42 @@ public class CubicSpline implements InterpolationMethod {
      */
     @Override
     public double evaluate(double z) {
-        /* TODO: diese Methode ist zu implementieren */
-        return 0.0;
+        double result = 0;
+        if (z > y[0])
+            return y[0];
+        else if (z < y[y.length - 1])
+            return y[y.length - 1];
+        else {
+            for (int i = 0; i < y.length - 1; i++) {
+                if (y[i] < z && y[i + 1] > z) {
+                    result = (z - y[i]) / (y[i + 1] - y[i]);
+                    result = hermite(result, i);
+                    break;
+                }
+            }
+        }
+        return result;
     }
+
+    private double hermite(double t, int i) {
+        return y[i] * h0(t) + y[i + 1] * h1(t) + h * yprime[i] * h2(t) + h * yprime[i + 1] * h3(t);
+    }
+
+    private double h3(double t) {
+        return -Math.pow(t, 2) + Math.pow(t, 3);
+    }
+
+    private double h2(double t) {
+        return t - 2 * Math.pow(t, 2) + Math.pow(t, 3);
+    }
+
+    private double h1(double t) {
+        return 3 * Math.pow(t, 2) + 2 * Math.pow(t, 3);
+    }
+
+    private double h0(double t) {
+        return 1 - 3 * Math.pow(t, 2) + 2 * Math.pow(t, 3);
+    }
+
+
 }
