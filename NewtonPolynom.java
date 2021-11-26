@@ -88,17 +88,18 @@ public class NewtonPolynom implements InterpolationMethod {
         a = new double[x.length];
         System.arraycopy(y, 0, a, 0, a.length);
         for (int i = a.length-1; i > 0; i--){
-            for(int k = 0; k < a.length; k++)
-                a[i+k] = recCoDiv(i, k, y, i+k, i);
+            for(int k = 0; k < a.length-1 - i; k++){
+                a[i] = (a[i] - a[i+1])/(y[i] - y[i+k]);
+            }
         }
     }
 
-    private double recCoDiv(int i, int k, double[] y, int upper, int lower) {
-        if(i == k){
-            return y[i];
-        }else
-            return (recCoDiv(i+1,upper, y, upper,lower)-recCoDiv(lower,upper-1, y, upper, lower))/(x[i+k]-x[i]);
-    }
+//    private void recCoDiv(int i, int k, double[] y, int upper, int lower) {
+//        if(i == k){
+//            a[i] = y[i];
+//        }else
+//            a[i] = (recCoDiv(i+1,upper, y, upper,lower+1)-recCoDiv(lower,upper-1, y, upper-1, lower))/(x[i+k]-x[i]);
+//    }
 
     /**
      * Gibt die Koeffizienten des Newton-Polynoms a zurueck
