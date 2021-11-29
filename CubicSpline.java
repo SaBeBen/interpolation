@@ -91,31 +91,32 @@ public class CubicSpline implements InterpolationMethod {
      * berechnet werden muessen.
      */
     public void computeDerivatives() {
-        double[] lower = new double[n - 1];
-        double[] diag = new double[n];
-        double[] upper = new double[n - 1];
-        double[] c = new double[n];
+        double[] lower = new double[n - 2];
+        double[] diag = new double[n - 1];
+        double[] upper = new double[n - 2];
+        double[] c = new double[n - 1];
 
-        /* TODO: n = 2 und n = 3 implementieren */
-
-        if (n > 2) {
-            c[0] = y[2] - y[0] - 3 / h * (yprime[0]);
-            c[n - 1] = y[n - 1] - y[n - 3] - 3 / h * yprime[n - 1];
-
-
-            for (int i = 0; i < n - 1; i++) {
+        if (n == 2) {
+            c[0] = (3 / h) * (y[2] - y[0]) - yprime[0];
+            c[1] = (3 / h) * (y[n] - y[n-2]) - yprime[n];
+        } else if (n > 2) {
+            c[0] = (3 / h) * (y[2] - y[0] - ((h / 3) * yprime[0]));
+            c[n - 2] = (3 / h) * (y[n] - y[n - 2] - ((h / 3) * yprime[n]));
+            for (int i = 0; i < n - 2; i++) {
                 lower[i] = 1;
                 diag[i] = 4;
                 upper[i] = 1;
-
-                if (i != 0 && i != n - 1) {
-                    c[i] = 3 / h * (y[i + 2] - y[i]);
-                }
+            }
+            for (int i = 3; i < n; i++) {
+                c[i - 2] = 3 / h * (y[i] - y[i - 2]);
             }
         }
-        diag[n - 1] = 4;
+        diag[n - 2] = 4;
         TridiagonalMatrix matrix = new TridiagonalMatrix(lower, diag, upper);
-        yprime = matrix.solveLinearSystem(c);
+        double[] helper = matrix.solveLinearSystem(c);
+        for (int i = 0; i < n - 1; i++) {
+            yprime[i + 1] = helper[i];
+        }
     }
 
     /**
@@ -162,6 +163,4 @@ public class CubicSpline implements InterpolationMethod {
     private double h0(double t) {
         return 1 - 3 * Math.pow(t, 2) + 2 * Math.pow(t, 3);
     }
-
-
 }

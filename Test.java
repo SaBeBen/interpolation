@@ -11,8 +11,8 @@ public class Test {
      */
     public static void main(String[] args) {
         testNewton();
-//        testSplines();
-//        testFFT();
+        testSplines();
+        testFFT();
     }
 
     private static void testNewton() {

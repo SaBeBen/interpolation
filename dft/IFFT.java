@@ -34,8 +34,10 @@ public class IFFT {
             z2 = ifft(z2);
             Complex omega = Complex.fromPolar(1, 2 * Math.PI / n);
             for (int j = 0; j < m; j++) {
-                v[j] = omega.power(j).mul(z2[j]).add(z1[j]);
-                v[m + j] = z1[j].sub(omega.power(j).mul(z2[j]));
+                if(z1[j] != null && z2[j] != null) {
+                    v[j] = omega.power(j).mul(z2[j]).add(z1[j]);
+                    v[m + j] = z1[j].sub(omega.power(j).mul(z2[j]));
+                }
             }
         }
         return v;

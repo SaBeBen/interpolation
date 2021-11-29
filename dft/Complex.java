@@ -30,6 +30,9 @@ public class Complex {
      * @return "this + other"
      */
     public Complex add(Complex other) {
+        if(other == null) {
+            return this;
+        }
         this.real = this.real + other.real;
         this.imaginary = this.imaginary + other.imaginary;
         return this;
@@ -41,6 +44,9 @@ public class Complex {
      * @return "this - other"
      */
     public Complex sub(Complex other) {
+        if(other == null) {
+            return this;
+        }
         this.real = this.real - other.real;
         this.imaginary = this.imaginary - other.imaginary;
         return null;
@@ -53,6 +59,11 @@ public class Complex {
      */
     public Complex mul(Complex other) {
         double a = this.real;
+        if(other == null) {
+            this.real = 0;
+            this.imaginary = 0;
+            return this;
+        }
         this.real = a * other.real - this.imaginary * other.imaginary;
         this.imaginary = a * other.imaginary + this.imaginary * other.real;
         return this;

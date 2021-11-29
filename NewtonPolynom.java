@@ -87,19 +87,18 @@ public class NewtonPolynom implements InterpolationMethod {
     private void computeCoefficients(double[] y) {
         a = new double[x.length];
         System.arraycopy(y, 0, a, 0, a.length);
-        for (int i = a.length-1; i > 0; i--){
-            for(int k = 0; k < a.length-1 - i; k++){
-                a[i] = (a[i] - a[i+1])/(y[i] - y[i+k]);
-            }
+        for(int i = 0; i < a.length; i++){
+            for (int k = 1; k < a.length-i-1; k++)
+                a[i] = recCoDiv(i,k, y, i+k,i)/ (x[i+k] - x[i]);
         }
     }
 
-//    private void recCoDiv(int i, int k, double[] y, int upper, int lower) {
-//        if(i == k){
-//            a[i] = y[i];
-//        }else
-//            a[i] = (recCoDiv(i+1,upper, y, upper,lower+1)-recCoDiv(lower,upper-1, y, upper-1, lower))/(x[i+k]-x[i]);
-//    }
+    private double recCoDiv(int i, int k, double[] y, int upper, int lower) {
+        if(i == k){
+            return y[i];
+        }else
+            return (recCoDiv(i+1,k, y, upper,lower+1)-recCoDiv(i,k-1, y, upper-1, lower));
+    }
 
     /**
      * Gibt die Koeffizienten des Newton-Polynoms a zurueck
@@ -130,7 +129,13 @@ public class NewtonPolynom implements InterpolationMethod {
      * @param y_new neuer Stuetzwert
      */
     public void addSamplingPoint(double x_new, double y_new) {
-        /* TODO: diese Methode ist zu implementieren */
+        double [] resX = new double[x.length+1];
+        double [] resY = new double[x.length+1];
+
+        resX[x.length] = x_new;
+        resY[x.length] = y_new;
+        this.x = Arrays.copyOf(resX, resX.length);
+        computeCoefficients(Arrays.copyOf(resY, resY.length));
     }
 
     /**
@@ -138,9 +143,14 @@ public class NewtonPolynom implements InterpolationMethod {
      * aehnlich dem Horner-Schema ausgewertet werden. Es wird davon ausgegangen,
      * dass die Stuetzstellen nicht leer sind.
      */
+
     @Override
     public double evaluate(double z) {
-        /* TODO: diese Methode ist zu implementieren */
-        return 0.0;
+        double res = 0;
+
+        for (int i = 0; i < a.length; i++) {
+            res += a[i];
+        }
+        return res;
     }
 }
